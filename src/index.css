@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Merriweather", ui-serif, Georgia, serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #resume-preview,
+  #resume-preview * {
+    visibility: visible;
+  }
+
+  #resume-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none !important;
+  }
+}
+
+/* Dark builder form overrides */
+.builder-dark input,
+.builder-dark textarea,
+.builder-dark select {
+  background-color: #1a1a27 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #e2e8f0 !important;
+}
+
+.builder-dark input::placeholder,
+.builder-dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+.builder-dark input:focus,
+.builder-dark textarea:focus,
+.builder-dark select:focus {
+  border-color: #7c3aed !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2) !important;
+}
+
+.builder-dark label {
+  color: #94a3b8 !important;
+}
+
+.builder-dark input[type="checkbox"] {
+  accent-color: #7c3aed;
+}
+
+.builder-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 58, 237, 0.4) transparent;
+}
+
+.builder-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.builder-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.builder-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.35);
+  border-radius: 999px;
+}
+
+.builder-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, 0.55);
+}
