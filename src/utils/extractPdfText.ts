@@ -102,5 +102,13 @@ export async function extractTextFromPdf(file: File): Promise<string> {
     pages.push(itemsToLines(items, viewport.width).join('\n'))
   }
 
-  return pages.join('\n\n')
+  const text = pages.join('\n\n')
+
+  if (!text.trim()) {
+    throw new Error(
+      'Could not extract text from this PDF. It may be scanned — try pasting the text or uploading DOCX instead.',
+    )
+  }
+
+  return text
 }

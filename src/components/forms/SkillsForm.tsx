@@ -1,71 +1,158 @@
 import { useState } from 'react'
-import { Code, Plus, X } from 'lucide-react'
+import { Code, Plus, Sparkles, Trash2 } from 'lucide-react'
 import { useResume } from '../../context/ResumeContext'
+import type { SkillCategory } from '../../types/resume'
+import { aiImproveSkillCategories } from '../../utils/aiRewrite'
+import {
+  defaultSkillCategories,
+  extractSkillsFromResumeText,
+  improveSkillCategories,
+} from '../../utils/skills'
 import { SectionCard } from '../SectionCard'
+import { Input } from '../ui/FormFields'
 
 export function SkillsForm({ inline = false }: { inline?: boolean }) {
   const { resume, setResume } = useResume()
-  const [input, setInput] = useState('')
+  const [improving, setImproving] = useState(false)
+  const [status, setStatus] = useState('')
 
-  const addSkill = () => {
-    const skill = input.trim()
-    if (!skill || resume.skills.includes(skill)) return
-    setResume((prev) => ({ ...prev, skills: [...prev.skills, skill] }))
-    setInput('')
-  }
-
-  const removeSkill = (skill: string) => {
+  const updateCategory = (id: string, field: keyof SkillCategory, value: string) => {
     setResume((prev) => ({
       ...prev,
-      skills: prev.skills.filter((s) => s !== skill),
+      skillCategories: prev.skillCategories.map((cat) =>
+        cat.id === id ? { ...cat, [field]: value } : cat,
+      ),
     }))
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      addSkill()
+  const addCategory = () => {
+    setResume((prev) => ({
+      ...prev,
+      skillCategories: [
+        ...prev.skillCategories,
+        { id: crypto.randomUUID(), name: 'Custom Category', skills: '' },
+      ],
+    }))
+  }
+
+  const removeCategory = (id: string) => {
+    setResume((prev) => ({
+      ...prev,
+      skillCategories: prev.skillCategories.filter((cat) => cat.id !== id),
+    }))
+  }
+
+  const fetchFromResume = () => {
+    const extracted = extractSkillsFromResumeText(resume)
+    setResume((prev) => ({ ...prev, skillCategories: extracted }))
+    setStatus('Skills updated from your resume content.')
+    setTimeout(() => setStatus(''), 2500)
+  }
+
+  const handleImprove = async () => {
+    setImproving(true)
+    setStatus('')
+    try {
+      const improved = await aiImproveSkillCategories(resume.skillCategories, resume)
+      setResume((prev) => ({ ...prev, skillCategories: improved }))
+      setStatus('Skills improved.')
+    } catch {
+      setResume((prev) => ({
+        ...prev,
+        skillCategories: improveSkillCategories(prev.skillCategories),
+      }))
+      setStatus('Skills polished with local formatting.')
+    } finally {
+      setImproving(false)
+      setTimeout(() => setStatus(''), 2500)
     }
   }
 
+  const resetCategories = () => {
+    setResume((prev) => ({ ...prev, skillCategories: defaultSkillCategories() }))
+  }
+
   const fields = (
-    <>
-      <div className="flex gap-2">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a skill and press Enter"
-          className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
-        />
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-sm font-semibold text-slate-200">Skill Section</h3>
+        <p className="mt-1 text-xs text-slate-500">
+          These are the skills which our system could fetch from your resume.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={addSkill}
-          className="rounded-xl bg-violet-600 px-3 py-2 text-white transition hover:bg-violet-700"
+          onClick={fetchFromResume}
+          className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:border-violet-500/40 hover:text-violet-400"
         >
-          <Plus size={16} />
+          Fetch from resume
+        </button>
+        <button
+          type="button"
+          onClick={resetCategories}
+          className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:border-violet-500/40 hover:text-violet-400"
+        >
+          Reset categories
         </button>
       </div>
-      {resume.skills.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {resume.skills.map((skill) => (
-            <span
-              key={skill}
-              className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700"
-            >
-              {skill}
-              <button
-                type="button"
-                onClick={() => removeSkill(skill)}
-                className="rounded-full p-0.5 transition hover:bg-violet-100"
-              >
-                <X size={12} />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
-    </>
+
+      <div className="space-y-4">
+        {resume.skillCategories.map((category) => (
+          <div
+            key={category.id}
+            className="rounded-lg border border-white/5 bg-white/[0.03] p-4"
+          >
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <Input
+                label="Category"
+                value={category.name}
+                onChange={(e) => updateCategory(category.id, 'name', e.target.value)}
+                className="flex-1"
+              />
+              {resume.skillCategories.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeCategory(category.id)}
+                  className="mt-5 rounded p-1.5 text-slate-400 transition hover:bg-red-500/10 hover:text-red-400"
+                  title="Remove category"
+                >
+                  <Trash2 size={14} />
+                </button>
+              )}
+            </div>
+            <Input
+              label={`${category.name || 'Skills'}`}
+              value={category.skills}
+              onChange={(e) => updateCategory(category.id, 'skills', e.target.value)}
+              placeholder="e.g. React.js, Next.js, HTML5, CSS3"
+            />
+          </div>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={addCategory}
+        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/10 py-2.5 text-sm text-slate-500 transition hover:border-violet-500/40 hover:bg-violet-500/10 hover:text-violet-400"
+      >
+        <Plus size={16} />
+        Add category
+      </button>
+
+      <button
+        type="button"
+        onClick={handleImprove}
+        disabled={improving}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:opacity-60"
+      >
+        <Sparkles size={16} />
+        {improving ? 'Improving…' : 'Improve Skills'}
+      </button>
+
+      {status && <p className="text-xs text-violet-400">{status}</p>}
+    </div>
   )
 
   if (inline) return fields

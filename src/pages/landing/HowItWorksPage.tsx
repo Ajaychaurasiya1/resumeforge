@@ -26,7 +26,7 @@ const STEPS = [
     number: '03',
     title: 'Add your Experience',
     description:
-      'List your work history with company, role, dates, and bullet-point achievements. Use one bullet per line — they render as a list in the preview.',
+      'List your work history with company, role, dates, and bullet point achievements. Enter one bullet per line; they render as a list in the preview.',
     tips: [
       'Start bullets with action verbs: Led, Built, Improved',
       'Include numbers where possible: "Increased sales by 40%"',
@@ -48,7 +48,7 @@ const STEPS = [
     number: '05',
     title: 'Choose a template & customize',
     description:
-      'Choose from 10 ATS templates in the header dropdown. Open Customize to change accent color, font size, and section order.',
+      'Choose from 20 unique templates in the header dropdown. Open Customize to change accent color, font family, line spacing, and section order.',
     tips: [
       'Professional and Executive suit corporate roles',
       'Technical and Modern work well for tech industries',
@@ -62,7 +62,7 @@ const STEPS = [
       'When you\'re happy with the preview, click "Export PDF" to open the print dialog. Choose "Save as PDF" as the destination and download your finished resume.',
     tips: [
       'Use "Save JSON" to back up your data',
-      'Your work auto-saves — you can return anytime',
+      'Your work autosaves. You can return anytime',
       'Load Sample to see a fully filled example first',
     ],
   },
@@ -71,15 +71,15 @@ const STEPS = [
 const FAQ = [
   {
     q: 'Do I need to create an account?',
-    a: 'No. ResumeForge runs entirely in your browser with no sign-up required.',
+    a: 'No. ResumeForge runs entirely in your browser with no sign up required.',
   },
   {
     q: 'Where is my data stored?',
     a: 'Locally in your browser\'s storage. It never leaves your device unless you export it.',
   },
   {
-    q: 'Can I use it on mobile?',
-    a: 'Yes, though the editor works best on a tablet or desktop for the side-by-side preview.',
+    q: 'Does it work on mobile?',
+    a: 'Yes, though the editor works best on a tablet or desktop for the side by side preview.',
   },
   {
     q: 'Is the PDF export really free?',
@@ -93,7 +93,7 @@ export function HowItWorksPage() {
       <PageHero
         badge="How It Works"
         title="From blank page to finished resume in minutes"
-        subtitle="A step-by-step walkthrough of how to use ResumeForge to create a professional, export-ready resume."
+        subtitle="A step by step walkthrough of ResumeForge, from blank page to professional, export ready resume."
       />
 
       <section className="px-5 py-16">

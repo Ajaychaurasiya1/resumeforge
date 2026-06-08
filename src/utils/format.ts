@@ -28,3 +28,49 @@ export function formatDateRange(
 export function splitLines(text: string): string[] {
   return text.split('\n').filter((line) => line.trim())
 }
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+export function isEmail(value: string): boolean {
+  return EMAIL_RE.test(value.trim())
+}
+
+export function toMailtoUrl(email: string): string | null {
+  const trimmed = email.trim()
+  if (!isEmail(trimmed)) return null
+  return `mailto:${trimmed}`
+}
+
+export function toTelUrl(phone: string): string | null {
+  const trimmed = phone.trim()
+  if (!trimmed) return null
+  const digits = trimmed.replace(/[^\d+]/g, '')
+  if (digits.length < 7) return null
+  return `tel:${digits}`
+}
+
+export function toExternalUrl(value: string): string | null {
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  if (/^(https?:|mailto:|tel:)/i.test(trimmed)) return trimmed
+  if (isEmail(trimmed)) return `mailto:${trimmed}`
+
+  const withoutProtocol = trimmed.replace(/^\/\//, '')
+  if (/^[\w.-]+\.[a-z]{2,}(\/.*)?$/i.test(withoutProtocol)) {
+    return `https://${withoutProtocol}`
+  }
+  return null
+}
+
+export function getContactHref(value: string): string | null {
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  if (isEmail(trimmed)) return `mailto:${trimmed}`
+  const external = toExternalUrl(trimmed)
+  if (external) return external
+  return toTelUrl(trimmed)
+}
+
+export function opensInNewTab(href: string): boolean {
+  return /^https?:\/\//i.test(href)
+}

@@ -1,4 +1,4 @@
-import type { AccentColor, FontSize } from '../types/resume'
+import type { AccentColor, FontFamily, FontSize, LineSpacing } from '../types/resume'
 
 export const ACCENT_MAP: Record<
   AccentColor,
@@ -48,6 +48,23 @@ export const FONT_SIZE_MAP: Record<
   sm: { body: 'text-xs', name: 'text-xl', section: 'text-xs' },
   md: { body: 'text-sm', name: 'text-2xl', section: 'text-sm' },
   lg: { body: 'text-base', name: 'text-3xl', section: 'text-base' },
+}
+
+export const FONT_FAMILY_MAP: Record<
+  FontFamily,
+  { className: string; css: string }
+> = {
+  sans: { className: 'font-sans', css: 'ui-sans-serif, system-ui, sans-serif' },
+  serif: { className: 'font-serif', css: 'Merriweather, Georgia, serif' },
+  arial: { className: 'font-sans', css: 'Arial, Helvetica, sans-serif' },
+  calibri: { className: 'font-sans', css: 'Calibri, Arial, sans-serif' },
+  georgia: { className: 'font-serif', css: 'Georgia, Times New Roman, serif' },
+}
+
+export const LINE_SPACING_MAP: Record<LineSpacing, string> = {
+  tight: 'leading-snug',
+  normal: 'leading-normal',
+  relaxed: 'leading-relaxed',
 }
 
 export const ACCENT_SWATCHES: { id: AccentColor; label: string; hex: string }[] = [

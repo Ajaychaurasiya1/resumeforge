@@ -5,9 +5,15 @@ import {
   emptyEducation,
   emptyExperience,
   emptyLanguage,
+  emptyPersonalInfo,
   emptyProject,
   type ResumeData,
 } from '../types/resume'
+import {
+  autoCategorizeSkills,
+  hasSkillContent,
+  parseCategorizedSkillsText,
+} from './skills'
 
 const EMAIL_RE = /[\w.+-]+@[\w.-]+\.\w{2,}/
 const PHONE_RE =
@@ -92,6 +98,17 @@ const EXACT_HEADERS: Record<string, SectionKey> = {
   languages: 'languages',
   language: 'languages',
   'language skills': 'languages',
+  volunteer: 'experience',
+  'volunteer experience': 'experience',
+  'volunteer work': 'experience',
+  trainings: 'achievements',
+  training: 'achievements',
+  courses: 'achievements',
+  publications: 'projects',
+  'research publications': 'projects',
+  references: 'other',
+  hobbies: 'other',
+  interests: 'other',
 }
 
 function cleanHeaderCandidate(line: string): string {
@@ -285,12 +302,12 @@ function parseHeaderBlock(headerLines: string[]) {
   const linkedin = headerLines.join(' ').match(LINKEDIN_RE)?.[0] ?? ''
   const github = headerLines.join(' ').match(GITHUB_RE)?.[0] ?? ''
   const websiteMatches = [...headerLines.join(' ').matchAll(new RegExp(URL_RE, 'gi'))].map((m) => m[0])
-  const website =
+  const portfolio =
     websiteMatches.find(
       (u) =>
         !u.toLowerCase().includes('linkedin') &&
         !u.toLowerCase().includes('github'),
-    ) ?? github
+    ) ?? ''
 
   let location = ''
   for (const line of headerLines) {
@@ -320,7 +337,16 @@ function parseHeaderBlock(headerLines: string[]) {
   }
 
   return {
-    personalInfo: { fullName: name, email, phone, location, linkedin, website: website || '' },
+    personalInfo: {
+      ...emptyPersonalInfo(),
+      fullName: name,
+      email,
+      phone,
+      location,
+      linkedin,
+      portfolio,
+      github,
+    },
     summary: summaryParts.join(' ').trim(),
   }
 }
@@ -800,7 +826,7 @@ export function parseResumeFromText(rawText: string): ResumeData {
   const base = defaultResumeData()
   const text = rawText
     .replace(/\r\n/g, '\n')
-    .replace(/\t/g, ' ')
+    .replace(/\t/g, ' | ')
     .replace(/\u00a0/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .trim()
@@ -820,14 +846,17 @@ export function parseResumeFromText(rawText: string): ResumeData {
   sections.experience = split.experience
   sections.skills = [...sections.skills, ...split.skills]
 
-  const summary = [header.summary, sections.summary.join(' ')].filter(Boolean).join(' ').slice(0, 1000)
-  const skills = parseSkillsBlock(sections.skills.join('\n'))
+  const summary = [header.summary, sections.summary.join(' ')].filter(Boolean).join(' ').slice(0, 1500)
+  const skillsText = sections.skills.join('\n')
+  const categorized = parseCategorizedSkillsText(skillsText)
+  const flatSkills = parseSkillsBlock(skillsText)
+  const skillCategories = categorized ?? (flatSkills.length ? autoCategorizeSkills(flatSkills) : base.skillCategories)
 
   return {
     ...base,
     personalInfo: { ...base.personalInfo, ...header.personalInfo },
     summary,
-    skills: skills.length ? skills : base.skills,
+    skillCategories,
     experience: parseExperienceBlock(sections.experience),
     education: parseEducationBlock(sections.education),
     projects: parseProjectsBlock(sections.projects),
@@ -845,7 +874,7 @@ export function hasResumeContent(data: ResumeData): boolean {
     data.summary.trim() ||
     data.experience.some((e) => e.company || e.position) ||
     data.education.some((e) => e.institution || e.degree) ||
-    data.skills.length > 0 ||
+    hasSkillContent(data.skillCategories) ||
     data.projects.some((p) => p.name) ||
     data.achievements.some((a) => a.title) ||
     data.certifications.some((c) => c.name) ||

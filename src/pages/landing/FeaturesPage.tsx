@@ -63,13 +63,13 @@ const FEATURE_GROUPS = [
       },
       {
         icon: Layout,
-        name: '10 ATS Templates',
+        name: '20 Unique Templates',
         detail: 'Classic, Modern, Minimal, Professional, Executive, Compact, Harvard, Chronological, Technical, and Elegant.',
       },
       {
         icon: Eye,
         name: 'Section Visibility',
-        detail: 'Hide sections you don\'t need — like Projects or Languages — without deleting the data.',
+        detail: 'Hide sections you don\'t need, like Projects or Languages, without deleting the data.',
       },
     ],
   },
@@ -107,7 +107,7 @@ const FEATURE_GROUPS = [
 ]
 
 const SECTIONS = [
-  { name: 'Personal Information', fields: 'Name, email, phone, location, LinkedIn, website' },
+  { name: 'Personal Information', fields: 'Name, phone, email, role, candidate type, location, LinkedIn, portfolio, GitHub, custom URLs' },
   { name: 'Professional Summary', fields: 'A concise overview of your background and strengths' },
   { name: 'Work Experience', fields: 'Company, role, dates, location, bullet-point descriptions' },
   { name: 'Education', fields: 'Institution, degree, field of study, GPA, dates' },
@@ -123,7 +123,7 @@ export function FeaturesPage() {
       <PageHero
         badge="Features"
         title="Built for serious job seekers"
-        subtitle="ResumeForge packs everything you need into a single, fast, browser-based tool — no subscriptions, no complexity."
+        subtitle="ResumeForge packs everything you need into a single, fast, browser based tool with no subscriptions and no complexity."
       />
 
       <section className="px-5 py-16">

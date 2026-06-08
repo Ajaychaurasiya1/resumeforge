@@ -1,17 +1,19 @@
-import { ChevronDown, ChevronUp, Eye, EyeOff, Palette, Settings2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, Palette, Settings2 } from 'lucide-react'
+import { useState } from 'react'
 import { useResume } from '../context/ResumeContext'
-import { SECTION_LABELS, type FontSize, type SectionId } from '../types/resume'
+import { type FontFamily, type FontSize, type LineSpacing } from '../types/resume'
+import { getSectionLabel } from '../utils/sectionConfig'
 import { ACCENT_SWATCHES } from '../utils/theme'
 import { SectionCard } from './SectionCard'
 
 export function SettingsPanel({ dark = false }: { dark?: boolean }) {
-  const { resume, updateSettings, toggleSectionVisibility, moveSection } = useResume()
+  const { resume, updateSettings, toggleSectionVisibility, moveSection, reorderSection } =
+    useResume()
   const { settings } = resume
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
 
   const labelCls = dark ? 'text-slate-400' : 'text-slate-600'
-  const rowCls = dark
-    ? 'border-white/5 bg-white/[0.03]'
-    : 'border-slate-100 bg-slate-50/50'
+  const rowCls = dark ? 'border-white/5 bg-white/[0.03]' : 'border-slate-100 bg-slate-50/50'
   const rowTextCls = dark ? 'text-slate-300' : 'text-slate-700'
   const sizeBtnActive = dark
     ? 'border-violet-500 bg-violet-500/20 text-violet-300'
@@ -19,6 +21,12 @@ export function SettingsPanel({ dark = false }: { dark?: boolean }) {
   const sizeBtnIdle = dark
     ? 'border-white/10 text-slate-400 hover:bg-white/5'
     : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+
+  const handleDrop = (toIndex: number) => {
+    if (dragIndex === null || dragIndex === toIndex) return
+    reorderSection(dragIndex, toIndex)
+    setDragIndex(null)
+  }
 
   return (
     <SectionCard title="Customize" icon={<Settings2 size={16} />} defaultOpen={false} dark={dark}>
@@ -67,21 +75,75 @@ export function SettingsPanel({ dark = false }: { dark?: boolean }) {
         </div>
 
         <div>
+          <span className={`mb-2 block text-xs font-medium ${labelCls}`}>Font Family</span>
+          <select
+            value={settings.fontFamily}
+            onChange={(e) => updateSettings({ fontFamily: e.target.value as FontFamily })}
+            className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-violet-500 ${
+              dark
+                ? 'border-white/10 bg-[#0f0f18] text-slate-300'
+                : 'border-slate-200 bg-white text-slate-700'
+            }`}
+          >
+            <option value="sans">Sans-serif (System)</option>
+            <option value="serif">Serif (Merriweather)</option>
+            <option value="arial">Arial</option>
+            <option value="calibri">Calibri</option>
+            <option value="georgia">Georgia</option>
+          </select>
+        </div>
+
+        <div>
+          <span className={`mb-2 block text-xs font-medium ${labelCls}`}>Line Spacing</span>
+          <div className="flex gap-2">
+            {(
+              [
+                { id: 'tight', label: 'Tight' },
+                { id: 'normal', label: 'Normal' },
+                { id: 'relaxed', label: 'Relaxed' },
+              ] as { id: LineSpacing; label: string }[]
+            ).map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => updateSettings({ lineSpacing: id })}
+                className={`flex-1 rounded-lg border py-2 text-xs font-medium transition ${
+                  settings.lineSpacing === id ? sizeBtnActive : sizeBtnIdle
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
           <span className={`mb-2 block text-xs font-medium ${labelCls}`}>
             Section Order & Visibility
           </span>
+          <p className={`mb-2 text-xs ${labelCls}`}>
+            Drag to reorder, or use arrows. Hide sections you don&apos;t need.
+          </p>
           <div className="space-y-1">
-            {settings.sectionOrder.map((id: SectionId, index) => {
+            {settings.sectionOrder.map((id, index) => {
               const isHidden = settings.hiddenSections.includes(id)
               return (
                 <div
                   key={id}
-                  className={`flex items-center gap-2 rounded-lg border px-2 py-1.5 ${rowCls}`}
+                  draggable
+                  onDragStart={() => setDragIndex(index)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => handleDrop(index)}
+                  onDragEnd={() => setDragIndex(null)}
+                  className={`flex items-center gap-2 rounded-lg border px-2 py-1.5 ${rowCls} ${
+                    dragIndex === index ? 'opacity-50' : ''
+                  }`}
                 >
+                  <GripVertical size={14} className="shrink-0 cursor-grab text-slate-600" />
                   <span
                     className={`flex-1 text-sm ${isHidden ? 'text-slate-600 line-through' : rowTextCls}`}
                   >
-                    {SECTION_LABELS[id]}
+                    {getSectionLabel(id, resume)}
                   </span>
                   <div className="flex items-center gap-0.5">
                     <button

@@ -10,7 +10,7 @@ export function CtaBanner() {
         </h2>
         <p className="mx-auto mt-3 max-w-md text-slate-400">
           Jump into the editor and create a polished, professional resume in under 15 minutes.
-          Completely free, no sign-up needed.
+          Completely free, no sign up needed.
         </p>
         <Link
           to="/builder"

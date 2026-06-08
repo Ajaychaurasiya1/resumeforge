@@ -3,6 +3,7 @@ import { useResume } from '../../context/ResumeContext'
 import { emptyCertification, type Certification } from '../../types/resume'
 import { SectionCard } from '../SectionCard'
 import { Input } from '../ui/FormFields'
+import { FormLinkPreview } from '../templates/ResumeLinks'
 
 export function CertificationsForm({ inline = false }: { inline?: boolean }) {
   const { resume, setResume } = useResume()
@@ -68,12 +69,15 @@ export function CertificationsForm({ inline = false }: { inline?: boolean }) {
                 value={item.date}
                 onChange={(e) => updateItem(item.id, 'date', e.target.value)}
               />
-              <Input
-                label="Credential URL"
-                value={item.url}
-                onChange={(e) => updateItem(item.id, 'url', e.target.value)}
-                placeholder="credly.com/badges/..."
-              />
+              <div>
+                <Input
+                  label="Credential URL"
+                  value={item.url}
+                  onChange={(e) => updateItem(item.id, 'url', e.target.value)}
+                  placeholder="credly.com/badges/..."
+                />
+                <FormLinkPreview value={item.url} />
+              </div>
             </div>
           </div>
         ))}

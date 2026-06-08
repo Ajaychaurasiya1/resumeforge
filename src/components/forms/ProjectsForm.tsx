@@ -3,6 +3,7 @@ import { useResume } from '../../context/ResumeContext'
 import { emptyProject, type Project } from '../../types/resume'
 import { SectionCard } from '../SectionCard'
 import { Input, Textarea } from '../ui/FormFields'
+import { FormLinkPreview } from '../templates/ResumeLinks'
 
 export function ProjectsForm({ inline = false }: { inline?: boolean }) {
   const { resume, setResume } = useResume()
@@ -54,12 +55,15 @@ export function ProjectsForm({ inline = false }: { inline?: boolean }) {
                 onChange={(e) => updateItem(item.id, 'name', e.target.value)}
                 placeholder="My Awesome Project"
               />
-              <Input
-                label="URL"
-                value={item.url}
-                onChange={(e) => updateItem(item.id, 'url', e.target.value)}
-                placeholder="github.com/user/project"
-              />
+              <div>
+                <Input
+                  label="URL"
+                  value={item.url}
+                  onChange={(e) => updateItem(item.id, 'url', e.target.value)}
+                  placeholder="github.com/user/project"
+                />
+                <FormLinkPreview value={item.url} />
+              </div>
               <div className="sm:col-span-2">
                 <Input
                   label="Technologies"
